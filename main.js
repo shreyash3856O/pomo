@@ -21,7 +21,8 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      sandbox: false
+      sandbox: false,
+      backgroundThrottling: false
     }
   });
 
