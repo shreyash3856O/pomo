@@ -1,8 +1,9 @@
-# 🍎 Pomogranate Timer (It's about time things got juicy!)
+# 🍎 Pomogranate (Pomodoro Timer) (It's about time things got juicy!)
 
 A floating pixel-art Pomodoro timer that sits on top of all your apps. It's so *appealing*, you'll never want to *peel* yourself away from work again! 
+for everyone who wants to study but got thier attention spans cooked (like me ofc)
 
-## 🚀 How to build the .exe (Let's get down to the seeds)
+## How to build the .exe (Let's get down to the seeds)
 
 ### Requirements
 - Windows 10 or 11
@@ -15,11 +16,11 @@ A floating pixel-art Pomodoro timer that sits on top of all your apps. It's so *
 4. Find **Pomogranate.exe** inside the `dist` folder.
 5. Double-click to run — it floats over everything like a majestic, productive piece of fruit!
 
-## 🏃‍♂️ Running the app (Squeeze the day!)
+##  Running the app (Squeeze the day!)
 - **Drag** the red titlebar to move it anywhere.
 - **X button** closes the app (when you're ready to *squash* your productivity).
 - It stays on top of Chrome, Notepad, everything. It's truly *unbe-leaf-able*.
 
-## 📝 Notes
+##  Notes
 - The .exe is portable — no installation needed! Just plant the seed anywhere.
 - If Windows Defender warns you, click "More info" → "Run anyway" (it's completely safe, we promise it's not a *pome-grenade* to your PC!).
