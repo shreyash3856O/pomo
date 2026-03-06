@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Pomogranate Timer</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'Press Start 2P', monospace;
+      overflow: hidden;
+    }
+
+    .widget {
+      width: 260px;
+      background: #ffe8d6;
+      border: 3px solid #c0392b;
+      border-radius: 8px;
+      box-shadow: 4px 4px 0px #8b1a1a, 0 0 0 1px #e74c3c;
+      user-select: none;
+      position: relative;
+      image-rendering: pixelated;
+    }
+
+    /* Title Bar */
+    .titlebar {
+      background: linear-gradient(90deg, #c0392b, #e74c3c);
+      padding: 5px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: grab;
+      border-radius: 5px 5px 0 0;
+      -webkit-app-region: drag;
+    }
+
+    .titlebar:active {
+      cursor: grabbing;
+    }
+
+    .titlebar-title {
+      color: #fff;
+      font-size: 6px;
+      text-shadow: 1px 1px 0 #8b0000;
+      letter-spacing: 1px;
+    }
+
+    .titlebar-btns {
+      display: flex;
+      gap: 4px;
+      -webkit-app-region: no-drag;
+    }
+
+    .titlebar-btn {
+      width: 12px;
+      height: 12px;
+      border: 2px solid #8b0000;
+      background: #ff6b6b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 7px;
+      color: #8b0000;
+      font-family: monospace;
+    }
+
+    .titlebar-btn:hover {
+      background: #ff9999;
+    }
+
+    /* Body */
+    .body {
+      padding: 10px 8px 12px;
+      text-align: center;
+      background: #fff5ee;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Clouds */
+    .clouds {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      overflow: hidden;
+      border-radius: 0 0 6px 6px;
+    }
+
+    .cloud {
+      position: absolute;
+      background: #fff;
+      border-radius: 50%;
+      opacity: 0.7;
+      animation: cloudFloat linear infinite;
+    }
+
+    .cloud::before,
+    .cloud::after {
+      content: '';
+      position: absolute;
+      background: #fff;
+      border-radius: 50%;
+    }
+
+    .cloud1 {
+      width: 30px;
+      height: 12px;
+      top: 15px;
+      animation-duration: 18s;
+      animation-delay: 0s;
+    }
+
+    .cloud2 {
+      width: 22px;
+      height: 9px;
+      top: 35px;
+      animation-duration: 22s;
+      animation-delay: -8s;
+    }
+
+    .cloud3 {
+      width: 26px;
+      height: 10px;
+      top: 55px;
+      animation-duration: 15s;
+      animation-delay: -4s;
+    }
+
+    @keyframes cloudFloat {
+      from {
+        transform: translateX(-60px);
+      }
+
+      to {
+        transform: translateX(240px);
+      }
+    }
+
+    /* Label */
+    .label {
+      font-size: 5px;
+      color: #8b3a2a;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Pomegranate canvas sprite */
+    .sprite-wrap {
+      position: relative;
+      z-index: 1;
+      height: 122px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+
+    .pome-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    #pomeCanvas {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      display: block;
+    }
+
+    /* Particles */
+    .particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: #e74c3c;
+      border-radius: 1px;
+      opacity: 0;
+      animation: particlePop 1.5s ease-out forwards;
+    }
+
+    @keyframes particlePop {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(var(--dx), var(--dy)) scale(0);
+      }
+    }
+
+    /* Timer display */
+    .timer-display {
+      font-size: 18px;
+      color: #6b1a0a;
+      text-shadow: 2px 2px 0px #c0392b33;
+      letter-spacing: 2px;
+      margin: 4px 0 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Mode indicator */
+    .mode-badge {
+      font-size: 4.5px;
+      padding: 3px 6px;
+      border-radius: 2px;
+      margin-bottom: 6px;
+      display: inline-block;
+      position: relative;
+      z-index: 1;
+      letter-spacing: 0.5px;
+    }
+
+    .mode-badge.work {
+      background: #c0392b;
+      color: #fff;
+    }
+
+    .mode-badge.short {
+      background: #27ae60;
+      color: #fff;
+    }
+
+    .mode-badge.long {
+      background: #2980b9;
+      color: #fff;
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      height: 6px;
+      background: #f5cba7;
+      border: 2px solid #c0392b;
+      margin: 0 0 8px;
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #e74c3c, #c0392b);
+      transition: width 1s linear;
+      image-rendering: pixelated;
+    }
+
+    /* Buttons */
+    .controls {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 5px;
+      padding: 5px 7px;
+      border: 2px solid #8b1a1a;
+      cursor: pointer;
+      color: #fff;
+      text-shadow: 1px 1px 0 #000;
+      letter-spacing: 0.5px;
+      transition: transform 0.1s;
+      border-radius: 2px;
+    }
+
+    .btn:active {
+      transform: translate(1px, 1px);
+    }
+
+    .btn-start {
+      background: #27ae60;
+      border-color: #1e8449;
+    }
+
+    .btn-pause {
+      background: #e67e22;
+      border-color: #ca6f1e;
+    }
+
+    .btn-reset {
+      background: #7f8c8d;
+      border-color: #566573;
+    }
+
+    .btn:hover {
+      filter: brightness(1.15);
+    }
+
+    /* Session dots */
+    .session-dots {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      margin-top: 6px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border: 2px solid #c0392b;
+      border-radius: 1px;
+      background: #ffe8d6;
+    }
+
+    .dot.done {
+      background: #c0392b;
+    }
+
+    /* ZZZ animation for break */
+    .zzz {
+      position: absolute;
+      top: 4px;
+      right: 8px;
+      font-size: 8px;
+      color: #2980b9;
+      font-family: 'Press Start 2P', monospace;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .zzz.show {
+      animation: zzzFloat 2s ease-in infinite;
+    }
+
+    .zzz:nth-child(2) {
+      animation-delay: 0.6s !important;
+      font-size: 6px;
+      top: 12px;
+      right: 4px;
+    }
+
+    .zzz:nth-child(3) {
+      animation-delay: 1.2s !important;
+      font-size: 4px;
+      top: 18px;
+      right: 12px;
+    }
+
+    @keyframes zzzFloat {
+      0% {
+        opacity: 0;
+        transform: translate(0, 0);
+      }
+
+      30% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-8px, -20px);
+      }
+    }
+
+    /* Stars/sparkles for done */
+    .sparkle {
+      position: absolute;
+      font-size: 10px;
+      pointer-events: none;
+      opacity: 0;
+      animation: none;
+    }
+
+    .sparkle.pop {
+      animation: sparklePop 0.8s ease-out forwards;
+    }
+
+    @keyframes sparklePop {
+      0% {
+        opacity: 1;
+        transform: scale(0) rotate(0deg);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.5) rotate(180deg);
+      }
+
+      100% {
+        opacity: 0;
+        transform: scale(0.5) rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="widget" id="widget">
+    <!-- Titlebar for dragging -->
+    <div class="titlebar" id="titlebar">
+      <span class="titlebar-title">🍎 Pomogranate</span>
+      <div class="titlebar-btns">
+        <div class="titlebar-btn" onclick="minimizeApp()" title="Minimize">_</div>
+        <div class="titlebar-btn" onclick="closeApp()" title="Close">x</div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="body">
+      <!-- Clouds -->
+      <div class="clouds">
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+        <div class="cloud cloud3"></div>
+      </div>
+
+      <!-- ZZZ for break mode -->
+      <div class="zzz" id="z1">z</div>
+      <div class="zzz" id="z2">Z</div>
+      <div class="zzz" id="z3">ZZ</div>
+
+      <div class="label" id="label">Your pome is ready in..</div>
+
+      <!-- Sprite -->
+      <div class="sprite-wrap">
+        <div class="pome-container">
+          <canvas id="pomeCanvas" width="116" height="120"></canvas>
+          <div class="sparkle" id="spark1" style="top:-10px;left:0;position:absolute">✨</div>
+          <div class="sparkle" id="spark2" style="top:-8px;right:0;position:absolute">⭐</div>
+          <div class="sparkle" id="spark3" style="bottom:0;left:-8px;position:absolute">✨</div>
+        </div>
+      </div>
+
+      <!-- Mode badge -->
+      <div class="mode-badge work" id="modeBadge">FOCUS TIME</div>
+
+      <!-- Timer -->
+      <div class="timer-display" id="timerDisplay">25:00</div>
+
+      <!-- Progress bar -->
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width:100%"></div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <button class="btn btn-start" id="startBtn" onclick="startTimer()">▶ START</button>
+        <button class="btn btn-pause" id="pauseBtn" onclick="pauseTimer()" style="display:none">⏸ PAUSE</button>
+        <button class="btn btn-reset" onclick="resetTimer()">↩ RST</button>
+      </div>
+
+      <!-- Session dots -->
+      <div class="session-dots" id="sessionDots">
+        <div class="dot" id="dot0"></div>
+        <div class="dot" id="dot1"></div>
+        <div class="dot" id="dot2"></div>
+        <div class="dot" id="dot3"></div>
+      </div>
+
+      <!-- Particles container -->
+      <div class="particles" id="particles"></div>
+    </div>
+  </div>
+
+  <script>
+    // ─── Canvas Pixel Art Pomegranate ─────────────────────────────
+    const canvas = document.getElementById('pomeCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Pixel grid for pomegranate body (24x27 pixels)
+    // Each cell: color key or null (transparent)
+    // We'll draw procedurally using ellipses + pixel details
+
+    // P = pixel size
+    const P = 5;
+
+    // Palette
+    const _ = null;
+    const K = '#1a0005';   // outline
+    const R = '#e8192c';   // main red
+    const D = '#b8001e';   // dark shadow
+    const L = '#ff6677';   // light red
+    const W = '#ffffff';   // white shine
+    const G = '#d01525';   // mid red
+    const B = '#ffb3c0';   // blush
+    const N = '#0d0d0d';   // eye black
+    const S = '#1a0005';   // smile — dark outline color, clearly visible
+    const GD = '#145214';  // crown dark green
+    const GL = '#2ecc40';  // crown bright green
+    const GR = '#8b0000';  // crown red collar
+
+    // 20 cols × 22 rows
+    // Crown is centered (cols 5-14), body is wide oval
+    // Smile = clear U shape: corners turn DOWN then arch
+    const SP = '#3d1a00';  // specs frame — warm dark brown
+
+    const O = [
+  //       0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19
+  /* 0 */[_, _, _, _, _, _, GD, _, GD, GD, GD, _, GD, _, _, _, _, _, _, _],
+  /* 1 */[_, _, _, _, _, GD, GL, GD, GL, GL, GL, GD, GL, GD, _, _, _, _, _, _],
+  /* 2 */[_, _, _, _, GD, GL, GL, GL, GL, GL, GL, GL, GL, GL, GD, _, _, _, _, _],
+  /* 3 */[_, _, _, _, GR, GR, GR, GR, GR, GR, GR, GR, GR, GR, GR, _, _, _, _, _],
+  /* 4 */[_, _, _, K, K, K, K, K, K, K, K, K, K, K, K, K, K, _, _, _],
+  /* 5 */[_, _, K, L, L, L, L, L, L, L, L, L, L, L, L, L, L, K, _, _],
+  /* 6 */[_, K, L, W, W, W, L, L, R, R, R, R, R, R, R, R, R, R, K, _],
+  /* 7 */[_, K, W, W, W, L, L, R, R, R, R, R, R, R, R, R, G, G, K, _],
+  /* 8 */[K, R, L, W, L, R, R, R, R, R, R, R, R, R, R, R, G, D, D, K],
+  /* 9 */[K, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, D, D, K],
+  /*10 */[K, R, R, R, R, N, N, R, R, R, R, R, R, N, N, R, R, D, D, K], // 2×2 eyes top
+  /*11 */[K, R, R, R, R, W, N, R, R, R, R, R, R, W, N, R, R, D, D, K], // 2×2 eyes bot, W=shine
+  /*12 */[K, R, R, R, B, B, B, R, R, R, R, R, B, B, B, R, R, D, D, K], // blush
+  /*13 */[K, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, D, D, K],
+  /*14 */[K, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, D, D, K],
+  /*15 */[K, R, R, R, R, R, R, R, S, R, R, S, R, R, R, R, R, D, D, K], // smile corners
+  /*16 */[K, R, R, R, R, R, R, R, R, S, S, R, R, R, R, R, D, D, K, _], // smile bottom
+  /*17 */[_, K, R, R, R, R, R, R, R, R, R, R, R, R, R, D, D, K, _, _],
+  /*18 */[_, K, D, R, R, R, R, R, R, R, R, R, R, D, D, D, K, _, _, _],
+  /*19 */[_, _, K, D, D, R, R, R, R, R, R, D, D, D, D, K, _, _, _, _],
+  /*20 */[_, _, _, K, K, D, D, D, D, D, D, D, K, K, K, _, _, _, _, _],
+  /*21 */[_, _, _, _, _, K, K, K, K, K, K, K, _, _, _, _, _, _, _, _],
+    ];
+
+    // ── Glasses grid ─────────────────────────────────────────────
+    // Eyes:  left  = rows 10-11, cols 5-6
+    //        right = rows 10-11, cols 13-14
+    // Blush: row 12, cols 4-6 (left) and 12-14 (right)
+    // Left  lens: rows 8-13, cols 3-8  — 1px gap around eyes, bottom bar BELOW blush
+    // Right lens: rows 8-13, cols 11-16
+    // Bridge: row 10, cols 9-10
+    // Arms: rows 8-10, col 2 (left) and col 17 (right)
+    const OG = O.map(r => [...r]);
+
+    // Left lens hollow rectangle
+    [3, 4, 5, 6, 7, 8].forEach(c => OG[8][c] = SP);  // top bar
+    [3, 4, 5, 6, 7, 8].forEach(c => OG[13][c] = SP);  // bottom bar — row 13, below blush
+    [8, 9, 10, 11, 12, 13].forEach(r => OG[r][3] = SP);  // left side
+    [8, 9, 10, 11, 12, 13].forEach(r => OG[r][8] = SP);  // right side
+
+    // Right lens hollow rectangle
+    [11, 12, 13, 14, 15, 16].forEach(c => OG[8][c] = SP);  // top bar
+    [11, 12, 13, 14, 15, 16].forEach(c => OG[13][c] = SP);  // bottom bar
+    [8, 9, 10, 11, 12, 13].forEach(r => OG[r][11] = SP);  // left side
+    [8, 9, 10, 11, 12, 13].forEach(r => OG[r][16] = SP);  // right side
+
+    // Bridge — row 10 between col 9 and 10
+    OG[10][9] = SP; OG[10][10] = SP;
+
+    // Arms — 3 px each side
+    [8, 9, 10].forEach(r => OG[r][2] = SP);
+    [8, 9, 10].forEach(r => OG[r][17] = SP);
+
+    // Restore eyes (never overwrite)
+    [[10, 5], [10, 6], [11, 5], [11, 6]].forEach(([r, c]) => OG[r][c] = O[r][c]);
+    [[10, 13], [10, 14], [11, 13], [11, 14]].forEach(([r, c]) => OG[r][c] = O[r][c]);
+
+    // Restore blush (never overwrite)
+    [[12, 4], [12, 5], [12, 6], [12, 12], [12, 13], [12, 14]].forEach(([r, c]) => OG[r][c] = O[r][c]);
+
+    // Blink (no glasses)
+    const OB = O.map(r => [...r]);
+    [10, 11].forEach(r => [5, 6, 13, 14].forEach(c => { if (OB[r][c] === N || OB[r][c] === W) OB[r][c] = R; }));
+    [5, 6].forEach(c => OB[11][c] = N);
+    [13, 14].forEach(c => OB[11][c] = N);
+
+    // Blink (with glasses) — close eyes but keep frames
+    const OGB = OG.map(r => [...r]);
+    [10, 11].forEach(r => [5, 6, 13, 14].forEach(c => { if (OGB[r][c] === N || OGB[r][c] === W) OGB[r][c] = R; }));
+    [5, 6].forEach(c => OGB[11][c] = N);
+    [13, 14].forEach(c => OGB[11][c] = N);
+
+    const ROWS = O.length;
+    const COLS = O[0].length;
+
+    let animMode = 'idle';
+    let bobAngle = 0;
+    let lastBlink = 0;
+    const BLINK_INTERVAL = 3000;
+    const BLINK_DURATION = 150;
+
+    function drawGrid(grid, ox, oy) {
+      for (let r = 0; r < ROWS; r++)
+        for (let c = 0; c < COLS; c++) {
+          if (!grid[r][c]) continue;
+          ctx.fillStyle = grid[r][c];
+          ctx.fillRect(ox + c * P, oy + r * P, P, P);
+        }
+    }
+
+    function animate(ts) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Gentle bob for all modes — working is just slightly faster
+      bobAngle += animMode === 'working' ? 0.032 : 0.022;
+      const bobY = Math.sin(bobAngle) * 2.5;
+
+      if (!lastBlink) lastBlink = ts;
+      const since = ts - lastBlink;
+      let isBlinking = false;
+      if (since > BLINK_INTERVAL) {
+        const f = (since - BLINK_INTERVAL) / BLINK_DURATION;
+        if (f >= 1.0) lastBlink = ts;
+        else isBlinking = true;
+      }
+
+      const working = animMode === 'working';
+      let grid;
+      if (working) grid = isBlinking ? OGB : OG;
+      else grid = isBlinking ? OB : O;
+
+      const ox = Math.round((canvas.width - COLS * P) / 2);
+      const oy = Math.round((canvas.height - ROWS * P) / 2 + bobY) - 4;
+
+      ctx.save();
+      if (animMode === 'break') {
+        const cx = canvas.width / 2, cy = canvas.height / 2;
+        ctx.translate(cx, cy);
+        ctx.rotate(Math.sin(bobAngle * 0.4) * 0.06);
+        ctx.translate(-cx, -cy);
+      }
+      drawGrid(grid, ox, oy);
+      ctx.restore();
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+
+    // ─── Timer Logic ─────────────────────────────────────────────
+    const MODES = {
+      work: { label: 'FOCUS TIME', badge: 'work', duration: 25 * 60 },
+      short: { label: 'SHORT BREAK', badge: 'short', duration: 5 * 60 },
+      long: { label: 'LONG BREAK', badge: 'long', duration: 15 * 60 },
+    };
+
+    let currentMode = 'work';
+    let totalTime = MODES.work.duration;
+    let timeLeft = totalTime;
+    let interval = null;
+    let running = false;
+    let session = 0;
+
+    const timerDisplay = document.getElementById('timerDisplay');
+    const progressFill = document.getElementById('progressFill');
+    const modeBadge = document.getElementById('modeBadge');
+    const labelEl = document.getElementById('label');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const z1 = document.getElementById('z1');
+    const z2 = document.getElementById('z2');
+    const z3 = document.getElementById('z3');
+
+    function formatTime(s) {
+      const m = Math.floor(s / 60).toString().padStart(2, '0');
+      const sec = (s % 60).toString().padStart(2, '0');
+      return `${m}:${sec}`;
+    }
+    function updateDisplay() {
+      timerDisplay.textContent = formatTime(timeLeft);
+      progressFill.style.width = ((timeLeft / totalTime) * 100) + '%';
+    }
+    function setZzz(show) {
+      [z1, z2, z3].forEach(z => show ? z.classList.add('show') : z.classList.remove('show'));
+    }
+    function setMode(mode) {
+      currentMode = mode;
+      const m = MODES[mode];
+      totalTime = m.duration; timeLeft = totalTime;
+      modeBadge.textContent = m.label;
+      modeBadge.className = 'mode-badge ' + m.badge;
+      labelEl.textContent = mode === 'work' ? 'Your pome is ready in..' : 'Pome is resting..';
+      animMode = mode === 'work' ? 'idle' : 'break';
+      setZzz(mode !== 'work');
+      updateDisplay();
+    }
+    function startTimer() {
+      if (running) return;
+      running = true;
+      startBtn.style.display = 'none';
+      pauseBtn.style.display = '';
+      animMode = currentMode === 'work' ? 'working' : 'break';
+      setZzz(false);
+      interval = setInterval(() => {
+        timeLeft--;
+        updateDisplay();
+        if (timeLeft <= 0) { clearInterval(interval); running = false; onTimerEnd(); }
+      }, 1000);
+    }
+    function pauseTimer() {
+      clearInterval(interval); running = false;
+      startBtn.style.display = ''; pauseBtn.style.display = 'none';
+      animMode = 'idle';
+    }
+    function resetTimer() {
+      clearInterval(interval); running = false;
+      startBtn.style.display = ''; pauseBtn.style.display = 'none';
+      animMode = 'idle'; setZzz(false);
+      timeLeft = totalTime; updateDisplay();
+    }
+    function onTimerEnd() {
+      animMode = 'idle';
+      spawnParticles(); spawnSparkles();
+      startBtn.style.display = ''; pauseBtn.style.display = 'none';
+      if (currentMode === 'work') {
+        session++;
+        updateDots();
+        if (session >= 4) { session = 0; updateDots(); setTimeout(() => setMode('long'), 600); }
+        else setTimeout(() => setMode('short'), 600);
+      } else {
+        setTimeout(() => setMode('work'), 600);
+      }
+    }
+    function updateDots() {
+      for (let i = 0; i < 4; i++)
+        document.getElementById('dot' + i).className = 'dot' + (i < session ? ' done' : '');
+    }
+    function spawnParticles() {
+      const container = document.getElementById('particles');
+      for (let i = 0; i < 14; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const colors = ['#e74c3c', '#f39c12', '#27ae60', '#3498db', '#9b59b6', '#f5b7b1'];
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.left = (30 + Math.random() * 160) + 'px';
+        p.style.top = (20 + Math.random() * 100) + 'px';
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 30 + Math.random() * 60;
+        p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+        p.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+        p.style.animationDelay = (Math.random() * 0.3) + 's';
+        container.appendChild(p);
+        setTimeout(() => p.remove(), 2000);
+      }
+    }
+    function spawnSparkles() {
+      ['spark1', 'spark2', 'spark3'].forEach((id, i) => {
+        const el = document.getElementById(id);
+        el.classList.remove('pop'); void el.offsetWidth;
+        el.style.animationDelay = (i * 0.15) + 's';
+        el.classList.add('pop');
+        setTimeout(() => el.classList.remove('pop'), 1000);
+      });
+    }
+    updateDisplay();
+    // Window Controls
+    function closeApp() {
+      try { require("electron").ipcRenderer.send("close-app"); } catch (e) { window.close(); }
+    }
+    function minimizeApp() {
+      try {
+        require("electron").ipcRenderer.send("minimize-app", canvas.toDataURL());
+      } catch (e) { }
+    }
+  </script>
+
+</html>

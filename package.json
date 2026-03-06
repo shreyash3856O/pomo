@@ -1,0 +1,28 @@
+{
+  "name": "pomogranate-timer",
+  "version": "1.0.0",
+  "description": "Pomogranate Pomodoro Timer",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "com.pomogranate.timer",
+    "productName": "Pomogranate",
+    "win": {
+      "target": "portable"
+    },
+    "portable": {
+      "artifactName": "Pomogranate.exe"
+    },
+    "files": [
+      "main.js",
+      "index.html"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.0.0"
+  }
+}
