@@ -3,7 +3,7 @@
 A floating pixel-art Pomodoro timer that sits on top of all your apps. It's so *appealing*, you'll never want to *peel* yourself away from work again! 
 for everyone who wants to study but got thier attention spans cooked (like me ofc)
 
-## How to build the .exe (Let's get down to the seeds)
+## How to build the .exe to meet pomo :)  (Let's get down to the seeds)
 
 ### Requirements
 - Windows 10 or 11
