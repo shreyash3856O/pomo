@@ -11,14 +11,16 @@
     "appId": "com.pomogranate.timer",
     "productName": "Pomogranate",
     "win": {
-      "target": "portable"
+      "target": "portable",
+      "icon": "icon.png"
     },
     "portable": {
-      "artifactName": "Pomogranate.exe"
+      "artifactName": "pomo.exe"
     },
     "files": [
       "main.js",
-      "index.html"
+      "index.html",
+      "icon.png"
     ]
   },
   "devDependencies": {

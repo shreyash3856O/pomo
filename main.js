@@ -15,11 +15,13 @@ function createWindow() {
     frame: false,
     alwaysOnTop: true,
     resizable: false,
-    skipTaskbar: true,
+    skipTaskbar: false,
     hasShadow: false,
+    icon: path.join(__dirname, 'icon.png'),
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
+      sandbox: false
     }
   });
 
@@ -28,7 +30,7 @@ function createWindow() {
   win.setVisibleOnAllWorkspaces(true);       // visible on all virtual desktops
 
   // Remove from taskbar on Windows
-  win.setSkipTaskbar(true);
+  win.setSkipTaskbar(false);
 }
 
 app.whenReady().then(createWindow);
@@ -42,13 +44,13 @@ ipcMain.on('minimize-app', (event, dataUrl) => {
   try {
     if (win) {
       if (win.isMinimized()) win.restore();
-      win.hide();
+      else win.minimize();
     }
     if (!tray) {
       const fallbackUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAANSURBVBhXY3jP4PgfAAWgA4wXyMTEAAAAAElFTkSuQmCC';
       const iconUrl = (dataUrl && typeof dataUrl === 'string') ? dataUrl : fallbackUrl;
       const icon = nativeImage.createFromDataURL(iconUrl);
-      tray = new Tray(icon.resize({ width: 16, height: 16 }));
+      tray = new Tray(icon);
       const contextMenu = Menu.buildFromTemplate([
         { label: 'Show App', click: () => { if (win) win.show(); } },
         {
