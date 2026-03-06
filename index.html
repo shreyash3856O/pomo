@@ -19,12 +19,18 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
+      width: 100vw;
+      padding: 8px;
+      /* space for drop shadow */
       font-family: 'Press Start 2P', monospace;
       overflow: hidden;
     }
 
     .widget {
-      width: 260px;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
       background: #ffe8d6;
       border: 3px solid #c0392b;
       border-radius: 8px;
@@ -83,6 +89,11 @@
       background: #fff5ee;
       position: relative;
       overflow: hidden;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
     /* Clouds */
@@ -102,6 +113,7 @@
       background: #fff;
       border-radius: 50%;
       opacity: 0.7;
+      border: 1px solid #000;
       animation: cloudFloat linear infinite;
     }
 
@@ -253,6 +265,7 @@
 
     /* Progress bar */
     .progress-bar {
+      width: 100%;
       height: 6px;
       background: #f5cba7;
       border: 2px solid #c0392b;
@@ -770,6 +783,7 @@
         require("electron").ipcRenderer.send("minimize-app", canvas.toDataURL());
       } catch (e) { }
     }
+
   </script>
 
 </html>

@@ -14,7 +14,7 @@ function createWindow() {
     transparent: true,
     frame: false,
     alwaysOnTop: true,
-    resizable: false,
+    resizable: true,
     skipTaskbar: false,
     hasShadow: false,
     icon: path.join(__dirname, 'icon.png'),
@@ -71,3 +71,5 @@ ipcMain.on('minimize-app', (event, dataUrl) => {
     dialog.showErrorBox('Minimize Error', err.stack || err.message || String(err));
   }
 });
+
+
