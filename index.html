@@ -425,6 +425,65 @@
         transform: scale(0.5) rotate(360deg);
       }
     }
+
+    /* Settings Panel */
+    .settings-panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 245, 238, 0.95);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .settings-panel.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .setting-title {
+      font-size: 14px;
+      color: #8b1a1a;
+      margin-bottom: 8px;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 220px;
+      font-size: 8px;
+      color: #6b1a0a;
+    }
+
+    .setting-row select {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      background: #fff;
+      border: 2px solid #c0392b;
+      padding: 5px;
+      border-radius: 2px;
+      outline: none;
+      color: #8b3a2a;
+      cursor: pointer;
+    }
+
+    .btn-close-settings {
+      margin-top: 10px;
+      background: #e74c3c;
+      border-color: #c0392b;
+      padding: 8px 14px;
+      font-size: 8px !important;
+    }
   </style>
 </head>
 
@@ -435,6 +494,7 @@
     <div class="titlebar" id="titlebar">
       <span class="titlebar-title">🍎 Pomogranate</span>
       <div class="titlebar-btns">
+        <div class="titlebar-btn" onclick="toggleSettings()" title="Settings">S</div>
         <div class="titlebar-btn" onclick="minimizeApp()" title="Minimize">_</div>
         <div class="titlebar-btn" onclick="closeApp()" title="Close">x</div>
       </div>
@@ -494,6 +554,38 @@
 
       <!-- Particles container -->
       <div class="particles" id="particles"></div>
+
+      <!-- Settings Panel -->
+      <div class="settings-panel" id="settingsPanel">
+        <div class="setting-title">SETTINGS</div>
+        <div class="setting-row">
+          <label>FOCUS</label>
+          <select id="workSelect" onchange="updateDuration('work', this.value)">
+            <option value="15">15m</option>
+            <option value="25" selected>25m</option>
+            <option value="45">45m</option>
+            <option value="60">60m</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <label>SHORT BRK</label>
+          <select id="shortSelect" onchange="updateDuration('short', this.value)">
+            <option value="5" selected>5m</option>
+            <option value="10">10m</option>
+            <option value="15">15m</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <label>LONG BRK</label>
+          <select id="longSelect" onchange="updateDuration('long', this.value)">
+            <option value="15" selected>15m</option>
+            <option value="20">20m</option>
+            <option value="30">30m</option>
+            <option value="45">45m</option>
+          </select>
+        </div>
+        <button class="btn btn-close-settings" onclick="toggleSettings()">BACK</button>
+      </div>
     </div>
   </div>
 
@@ -774,6 +866,22 @@
       });
     }
     updateDisplay();
+
+    // Settings Logic
+    function toggleSettings() {
+      const panel = document.getElementById('settingsPanel');
+      panel.classList.toggle('open');
+    }
+
+    function updateDuration(mode, mins) {
+      MODES[mode].duration = parseInt(mins) * 60;
+      if (currentMode === mode && !running) {
+        totalTime = MODES[mode].duration;
+        timeLeft = totalTime;
+        updateDisplay();
+      }
+    }
+
     // Window Controls
     function closeApp() {
       try { require("electron").ipcRenderer.send("close-app"); } catch (e) { window.close(); }
